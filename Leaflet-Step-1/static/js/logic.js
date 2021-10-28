@@ -32,9 +32,9 @@ function setupMap(data){
   var earthquakes = L.geoJSON(data, {
     onEachFeature: onEachFeature,
     pointToLayer: function (feature, latlng) {
-      var color = getColor(feature.properties.mag);
+      var color = getColor(feature.geometry.coordinates[2]);
       var geojsonMarkerOptions = {
-        radius: 4*feature.properties.mag,
+        radius: 5*feature.properties.mag,
         fillColor: color,
         color: "black",
         weight: 1,
@@ -69,17 +69,18 @@ function setupMap(data){
   legend.onAdd = function (map) {
   
       var div = L.DomUtil.create('div', 'info legend'),
-      grades = [0, 1, 2, 3, 4, 5],
+      depths = [-10, 10, 30, 50, 70, 90],
       labels = [];
 
-      div.innerHTML+='Magnitude<br><hr>'
+      div.innerHTML+='Depth<br><hr>'
   
-      // loop through our density intervals and generate a label with a colored square for each interval
-      for (var i = 0; i < grades.length; i++) {
-          div.innerHTML +=
-              '<i style="background:' + getColor(grades[i] + 1) + '">&nbsp&nbsp&nbsp&nbsp</i> ' +
-              grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-  }
+      // loop through our depth intervals and 
+      // generate a label with a colored square for each interval
+      for (var i = 0; i < depths.length; i++) {
+            div.innerHTML +=
+                '<i style="background:' + getColor(depths[i] + 1) + '">&nbsp&nbsp&nbsp&nbsp</i> ' +
+                depths[i] + (depths[i + 1] ? '&ndash;' + depths[i + 1] + '<br>' : '+');
+        }
   
   return div;
   };
@@ -88,19 +89,22 @@ function setupMap(data){
 
 }
 
-// Give each feature a popup describing the place and time of the earthquake
+// Give each feature a popup describing 
+//the place, time, magnitude and depth of the earthquake
   function onEachFeature(feature, layer) {
     layer.bindPopup("<h3>" + feature.properties.place +
       "</h3><hr><p>" + new Date(feature.properties.time) + "</p>" +
-      "</h3><hr><p>Magnitude: " + feature.properties.mag + "</p>");
+      "</h3><hr><p>Magnitude: " + feature.properties.mag + "</p>" +
+      "</h3><hr><p>Depth: " + feature.geometry.coordinates[2] + "</p>");
   }
 
 function getColor(d) {
-      return d < 1.000 ? 'rgb(183,243,77)' :
-            d < 2.000  ? 'rgb(225,243,77)' :
-            d < 3.000  ? 'rgb(243,219,77)' :
-            d < 4.000  ? 'rgb(243,186,77)' :
-            d < 5.000  ? 'rgb(240,167,107)' : 'rgb(240,107,107)';
+      return d > 90 ? 'rgb(255,95,101)' :
+      		 d > 70 ? 'rgb(252,163,93)' :
+      		 d > 50 ? 'rgb(253,183,42)' :
+      		 d > 30 ? 'rgb(247,219,17)' :
+      		 d > 10 ? 'rgb(220,244,0)' : 'rgb(163,246,0)';
+
   }
 
 getDataFromApi();
